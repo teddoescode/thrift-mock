@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "thrift-mock"
+dynamic = ["version"]
+description = "Dynamically spin up mock Apache Thrift servers from .thrift IDL files"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    { name = "Gus Mac" },
+]
+dependencies = [
+    "thriftpy2",
+    "pyyaml",
+    "click",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Testing",
+]
+
+[project.scripts]
+thrift-mock = "thrift_mock.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+
+[project.urls]
+Homepage = "https://github.com/gusmac/thrift-mock"
+Issues = "https://github.com/gusmac/thrift-mock/issues"
+
+[tool.hatch.version]
+path = "src/thrift_mock/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/thrift_mock"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
