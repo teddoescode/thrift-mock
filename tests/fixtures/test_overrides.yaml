@@ -1,0 +1,9 @@
+services:
+  TestService:
+    isAlive:
+      return: True
+    getName:
+      return: "Redacted Redactedson"
+    getUser:
+      throw:
+        UserNotFoundException()

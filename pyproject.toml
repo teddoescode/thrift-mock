@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
 authors = [
-    { name = "Gus Mac" },
+    { name = "teddoescode" },
 ]
 dependencies = [
     "thriftpy2",
@@ -36,8 +36,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/gusmac/thrift-mock"
-Issues = "https://github.com/gusmac/thrift-mock/issues"
+Homepage = "https://github.com/your-org/thrift-mock"
+Issues = "https://github.com/your-org/thrift-mock/issues"
 
 [tool.hatch.version]
 path = "src/thrift_mock/__init__.py"

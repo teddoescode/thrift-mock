@@ -1,0 +1,4 @@
+services:
+  TestService:
+    getUser:
+      throw: UserNotFoundException

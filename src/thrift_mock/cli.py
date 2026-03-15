@@ -47,7 +47,13 @@ def _configure_logging() -> None:
     default="binary",
     help="Protocol layer (default: binary).",
 )
-def main(thrift: Path, port: int, transport: str, protocol: str) -> None:
+@click.option(
+    "--overrides",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Path to YAML overrides config (optional).",
+)
+def main(thrift: Path, port: int, transport: str, protocol: str, overrides: Path | None) -> None:
     """Spin up a mock Thrift server from a .thrift IDL file."""
     _configure_logging()
 
@@ -61,7 +67,13 @@ def main(thrift: Path, port: int, transport: str, protocol: str) -> None:
     service_name = next(iter(service_definitions))
     service_definition = service_definitions[service_name]
 
-    handler = create_handler(service_definition, thrift_module)
+    strategy = None
+    if overrides is not None:
+        from thrift_mock.overrides import OverrideResponseStrategy, load_overrides
+        service_overrides = load_overrides(overrides)
+        strategy = OverrideResponseStrategy(service_overrides, thrift_module)
+
+    handler = create_handler(service_definition, thrift_module, strategy)
     server = create_mock_server(
         thrift_module=thrift_module,
         service_name=service_name,
