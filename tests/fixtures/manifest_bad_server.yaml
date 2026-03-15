@@ -1,0 +1,8 @@
+# One valid server and one referencing a non-existent IDL file.
+# The bad server must be skipped; the good one must still start.
+servers:
+  - thrift: simple_service.thrift
+    port: 9793
+
+  - thrift: nonexistent_service.thrift
+    port: 9794

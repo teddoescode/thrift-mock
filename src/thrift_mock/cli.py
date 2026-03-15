@@ -3,6 +3,7 @@
 import logging
 import signal
 import sys
+import threading
 from pathlib import Path
 
 import click
@@ -22,7 +23,12 @@ def _configure_logging() -> None:
     )
 
 
-@click.command()
+@click.group()
+def main() -> None:
+    """Spin up mock Apache Thrift servers from .thrift IDL files."""
+
+
+@main.command()
 @click.option(
     "--thrift",
     required=True,
@@ -53,8 +59,8 @@ def _configure_logging() -> None:
     default=None,
     help="Path to YAML overrides config (optional).",
 )
-def main(thrift: Path, port: int, transport: str, protocol: str, overrides: Path | None) -> None:
-    """Spin up a mock Thrift server from a .thrift IDL file."""
+def serve(thrift: Path, port: int, transport: str, protocol: str, overrides: Path | None) -> None:
+    """Start a single mock Thrift server from a .thrift IDL file."""
     _configure_logging()
 
     thrift_module, service_definitions = parse_thrift_file(thrift)
@@ -63,13 +69,13 @@ def main(thrift: Path, port: int, transport: str, protocol: str, overrides: Path
         logger.error("No services found in %s", thrift)
         sys.exit(1)
 
-    # Use the first service found in the file
     service_name = next(iter(service_definitions))
     service_definition = service_definitions[service_name]
 
     strategy = None
     if overrides is not None:
         from thrift_mock.overrides import OverrideResponseStrategy, load_overrides
+
         service_overrides = load_overrides(overrides)
         strategy = OverrideResponseStrategy(service_overrides, thrift_module)
 
@@ -99,3 +105,44 @@ def main(thrift: Path, port: int, transport: str, protocol: str, overrides: Path
         protocol,
     )
     server.serve()
+
+
+@main.command()
+@click.option(
+    "--file",
+    "manifest_file",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to the manifest YAML file.",
+)
+def manifest(manifest_file: Path) -> None:
+    """Start multiple mock Thrift servers from a manifest YAML file."""
+    _configure_logging()
+
+    from thrift_mock.orchestrator import Orchestrator, load_manifest
+
+    configs = load_manifest(manifest_file)
+    orchestrator = Orchestrator(configs)
+    orchestrator.start_all()
+
+    if orchestrator.server_count == 0:
+        logger.error("No servers started successfully — check manifest and .thrift files")
+        sys.exit(1)
+
+    logger.info(
+        "Started %d/%d server(s) from manifest %s",
+        orchestrator.server_count,
+        len(configs),
+        manifest_file,
+    )
+
+    def _shutdown(signum, frame):
+        logger.info("Shutting down all mock servers")
+        orchestrator.stop_all()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, _shutdown)
+    signal.signal(signal.SIGTERM, _shutdown)
+
+    # Park the main thread — servers run in daemon threads.
+    threading.Event().wait()

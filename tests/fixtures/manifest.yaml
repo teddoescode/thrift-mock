@@ -1,0 +1,9 @@
+# Two independent mock servers started from a single manifest.
+servers:
+  - thrift: simple_service.thrift
+    port: 9791
+    transport: buffered
+    protocol: binary
+
+  - thrift: test_service.thrift
+    port: 9792
