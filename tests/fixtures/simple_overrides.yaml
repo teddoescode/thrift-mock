@@ -1,0 +1,11 @@
+services:
+  SimpleService:
+    getAge:
+      return: 42
+    getName:
+      return: "Alice"
+    getUser:
+      return:
+        id: 99
+        name: "Bob"
+        active: true
