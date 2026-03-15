@@ -1,0 +1,5 @@
+# Server with an overrides YAML wired in via the manifest.
+servers:
+  - thrift: simple_service.thrift
+    port: 9795
+    overrides: simple_overrides.yaml

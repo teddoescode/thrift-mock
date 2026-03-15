@@ -10,11 +10,37 @@ pip install thrift-mock
 
 ## Quick Start
 
+### Single server
+
 ```bash
-thrift-mock --thrift path/to/service.thrift --port 9090
+thrift-mock serve --thrift path/to/service.thrift --port 9090
 ```
 
-This parses the `.thrift` file, generates default responses for every method, and starts a mock server on the specified port. Press Ctrl+C to stop.
+Parses the `.thrift` file, generates default responses for every method, and starts a mock server on the specified port. Press Ctrl+C to stop.
+
+### Multiple servers from a manifest
+
+```bash
+thrift-mock manifest --file manifest.yaml
+```
+
+Starts all servers defined in the manifest concurrently. If one fails to start (bad IDL, port conflict), it is skipped and the rest continue.
+
+**`manifest.yaml`:**
+
+```yaml
+servers:
+  - thrift: path/to/user_service.thrift
+    port: 9091
+
+  - thrift: path/to/order_service.thrift
+    port: 9092
+    transport: framed
+    protocol: compact
+    overrides: order_overrides.yaml
+```
+
+All paths are resolved relative to the manifest file, so the manifest is portable.
 
 ## Default Responses
 
@@ -38,7 +64,7 @@ Every method returns a zero-value based on its return type:
 Pass a YAML config with `--overrides` to return custom values for specific methods:
 
 ```bash
-thrift-mock --thrift path/to/service.thrift --port 9090 --overrides overrides.yaml
+thrift-mock serve --thrift path/to/service.thrift --port 9090 --overrides overrides.yaml
 ```
 
 **`overrides.yaml`:**
@@ -57,7 +83,7 @@ services:
       return: "mock-name"
 ```
 
-Any method not listed falls back to its default value.
+Any method not listed falls back to its default value. Overrides can also be specified per-server inside a manifest (see above).
 
 ## Exception Simulation
 
@@ -79,16 +105,20 @@ The exception must be declared in the `.thrift` file. The mock raises it exactly
 Match the transport and protocol your client uses (defaults: `buffered` + `binary`):
 
 ```bash
-thrift-mock --thrift service.thrift --port 9090 --transport framed --protocol compact
+thrift-mock serve --thrift service.thrift --port 9090 --transport framed --protocol compact
 ```
 
 Options:
 - `--transport`: `buffered` (default), `framed`
 - `--protocol`: `binary` (default), `compact`
 
-## Testing It Yourself
+The same options are available per-server in a manifest.
 
-The repo includes a ready-made fixture you can use to try every feature.
+## Compatibility
+
+thrift-mock speaks standard Thrift wire protocol. Any existing Thrift client — regardless of language or generator — will work as long as transport and protocol match. No client-side changes required.
+
+## Testing It Yourself
 
 **1. Install from source:**
 
@@ -122,7 +152,7 @@ pip install -e ".[dev]"
 **2. Start the mock server (defaults only):**
 
 ```bash
-thrift-mock --thrift tests/fixtures/test_service.thrift --port 9090
+thrift-mock serve --thrift tests/fixtures/test_service.thrift --port 9090
 ```
 
 **3. In a second terminal, run the test client:**
@@ -160,7 +190,7 @@ services:
 Restart the server with overrides:
 
 ```bash
-thrift-mock --thrift tests/fixtures/test_service.thrift --port 9090 --overrides my_overrides.yaml
+thrift-mock serve --thrift tests/fixtures/test_service.thrift --port 9090 --overrides my_overrides.yaml
 ```
 
 Run the client again — `getCount`, `getName`, and `getUser` will return your configured values.
@@ -176,9 +206,23 @@ services:
 
 Restart with this config and run the client — `getUser` will now raise `UserNotFoundException`.
 
-## Run the Test Suite
+**6. Try a multi-server manifest:**
 
 ```bash
+thrift-mock manifest --file tests/fixtures/manifest.yaml
+```
+
+Both mock servers start concurrently. Connect a client to either port independently.
+
+## Run the Test Suite
+
+macOS / Linux:
+```bash
+pytest
+```
+
+Windows:
+```bat
 pytest
 ```
 
