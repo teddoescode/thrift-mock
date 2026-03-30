@@ -48,6 +48,33 @@ class TestManifestLoading:
         assert configs[0].port == 9791
         assert configs[1].port == 9792
 
+    def test_timeout_is_loaded_from_manifest_when_present(self):
+        configs = load_manifest(MANIFEST)
+        # first entry has timeout: 30
+        assert configs[0].timeout_seconds == 30
+
+    def test_timeout_default_is_60_when_omitted(self):
+        configs = load_manifest(MANIFEST)
+        # second entry has no timeout key
+        assert configs[1].timeout_seconds == 60
+
+
+# ---------------------------------------------------------------------------
+# ServerConfig dataclass defaults
+# ---------------------------------------------------------------------------
+
+
+class TestServerConfigDefaults:
+    """ServerConfig timeout_seconds defaults to 60 and can be overridden."""
+
+    def test_timeout_seconds_defaults_to_60(self):
+        config = ServerConfig(thrift=Path("x.thrift"), port=9000)
+        assert config.timeout_seconds == 60
+
+    def test_timeout_seconds_can_be_overridden(self):
+        config = ServerConfig(thrift=Path("x.thrift"), port=9000, timeout_seconds=120)
+        assert config.timeout_seconds == 120
+
 
 # ---------------------------------------------------------------------------
 # Orchestrator lifecycle — all servers healthy

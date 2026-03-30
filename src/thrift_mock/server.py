@@ -34,6 +34,7 @@ def create_mock_server(
     host: str = "127.0.0.1",
     transport: str = "buffered",
     protocol: str = "binary",
+    timeout_seconds: int = 60,
 ) -> Any:
     """Create a thriftpy2 server for the given service and handler."""
     service = getattr(thrift_module, service_name)
@@ -42,12 +43,13 @@ def create_mock_server(
     protocol_factory = _PROTOCOL_FACTORIES[protocol]()
 
     logger.info(
-        "Creating server for %s on %s:%d (transport=%s, protocol=%s)",
+        "Creating server for %s on %s:%d (transport=%s, protocol=%s, timeout=%ds)",
         service_name,
         host,
         port,
         transport,
         protocol,
+        timeout_seconds,
     )
 
     server = make_server(
@@ -57,6 +59,7 @@ def create_mock_server(
         port=port,
         trans_factory=transport_factory,
         proto_factory=protocol_factory,
+        client_timeout=timeout_seconds * 1000,
     )
 
     return server

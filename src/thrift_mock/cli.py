@@ -59,7 +59,14 @@ def main() -> None:
     default=None,
     help="Path to YAML overrides config (optional).",
 )
-def serve(thrift: Path, port: int, transport: str, protocol: str, overrides: Path | None) -> None:
+@click.option(
+    "--timeout",
+    type=int,
+    default=60,
+    show_default=True,
+    help="Client socket timeout in seconds.",
+)
+def serve(thrift: Path, port: int, transport: str, protocol: str, overrides: Path | None, timeout: int) -> None:
     """Start a single mock Thrift server from a .thrift IDL file."""
     _configure_logging()
 
@@ -87,6 +94,7 @@ def serve(thrift: Path, port: int, transport: str, protocol: str, overrides: Pat
         port=port,
         transport=transport,
         protocol=protocol,
+        timeout_seconds=timeout,
     )
 
     def _shutdown(signum, frame):
@@ -98,11 +106,12 @@ def serve(thrift: Path, port: int, transport: str, protocol: str, overrides: Pat
     signal.signal(signal.SIGTERM, _shutdown)
 
     logger.info(
-        "Serving %s on port %d (transport=%s, protocol=%s)",
+        "Serving %s on port %d (transport=%s, protocol=%s, timeout=%ds)",
         service_name,
         port,
         transport,
         protocol,
+        timeout,
     )
     server.serve()
 

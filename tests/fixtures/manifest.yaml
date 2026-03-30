@@ -4,6 +4,7 @@ servers:
     port: 9791
     transport: buffered
     protocol: binary
+    timeout: 30
 
   - thrift: test_service.thrift
     port: 9792
