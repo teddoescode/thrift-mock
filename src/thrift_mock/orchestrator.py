@@ -24,6 +24,7 @@ class ServerConfig:
     transport: str = "buffered"
     protocol: str = "binary"
     overrides: Path | None = None
+    timeout_seconds: int = 60
 
 
 def load_manifest(manifest_path: Path) -> list[ServerConfig]:
@@ -52,6 +53,7 @@ def load_manifest(manifest_path: Path) -> list[ServerConfig]:
             transport=entry.get("transport", "buffered"),
             protocol=entry.get("protocol", "binary"),
             overrides=overrides_path,
+            timeout_seconds=entry.get("timeout", 60),
         )
         configs.append(config)
 
@@ -130,6 +132,7 @@ class Orchestrator:
                 port=config.port,
                 transport=config.transport,
                 protocol=config.protocol,
+                timeout_seconds=config.timeout_seconds,
             )
 
             thread = threading.Thread(
@@ -143,11 +146,12 @@ class Orchestrator:
             self._threads.append(thread)
 
             logger.info(
-                "Started %s on port %d (transport=%s, protocol=%s)",
+                "Started %s on port %d (transport=%s, protocol=%s, timeout=%ds)",
                 service_name,
                 config.port,
                 config.transport,
                 config.protocol,
+                config.timeout_seconds,
             )
 
         except Exception as exc:
