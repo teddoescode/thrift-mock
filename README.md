@@ -4,9 +4,15 @@ Dynamically spin up mock Apache Thrift servers from `.thrift` IDL files. No code
 
 ## Installation
 
+thrift-mock isn't published to PyPI yet. Install it from source:
+
 ```bash
-pip install thrift-mock
+git clone https://github.com/teddoescode/thrift-mock.git
+cd thrift-mock
+pip install -e .
 ```
+
+This installs the `thrift-mock` command in editable mode. For a development setup with the test dependencies, use `pip install -e ".[dev]"` instead (see [Development](#development)).
 
 ## Quick Start
 
@@ -145,7 +151,7 @@ thrift-mock speaks standard Thrift wire protocol. Any existing Thrift client —
 
 macOS / Linux:
 ```bash
-git clone https://github.com/your-org/thrift-mock.git
+git clone https://github.com/teddoescode/thrift-mock.git
 cd thrift-mock
 python3 -m venv .venv
 source .venv/bin/activate
@@ -154,7 +160,7 @@ pip install -e ".[dev]"
 
 Windows (Command Prompt):
 ```bat
-git clone https://github.com/your-org/thrift-mock.git
+git clone https://github.com/teddoescode/thrift-mock.git
 cd thrift-mock
 python -m venv .venv
 .venv\Scripts\activate.bat
@@ -163,7 +169,7 @@ pip install -e ".[dev]"
 
 Windows (PowerShell):
 ```powershell
-git clone https://github.com/your-org/thrift-mock.git
+git clone https://github.com/teddoescode/thrift-mock.git
 cd thrift-mock
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -251,7 +257,7 @@ pytest
 
 macOS / Linux:
 ```bash
-git clone https://github.com/your-org/thrift-mock.git
+git clone https://github.com/teddoescode/thrift-mock.git
 cd thrift-mock
 python3 -m venv .venv
 source .venv/bin/activate
@@ -261,7 +267,7 @@ pytest
 
 Windows:
 ```bat
-git clone https://github.com/your-org/thrift-mock.git
+git clone https://github.com/teddoescode/thrift-mock.git
 cd thrift-mock
 python -m venv .venv
 .venv\Scripts\activate.bat
