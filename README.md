@@ -114,6 +114,27 @@ Options:
 
 The same options are available per-server in a manifest.
 
+## Timeout
+
+The default client socket timeout is 60 seconds. Override it with `--timeout` (value in seconds):
+
+```bash
+thrift-mock serve --thrift service.thrift --port 9090 --timeout 120
+```
+
+Set it per-server in a manifest with the `timeout` key:
+
+```yaml
+servers:
+  - thrift: user_service.thrift
+    port: 9091
+    timeout: 30
+
+  - thrift: order_service.thrift
+    port: 9092
+    # no timeout key — uses the default of 60s
+```
+
 ## Compatibility
 
 thrift-mock speaks standard Thrift wire protocol. Any existing Thrift client — regardless of language or generator — will work as long as transport and protocol match. No client-side changes required.
